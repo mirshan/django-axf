@@ -1,6 +1,6 @@
 from django.contrib import admin
 # Register your models here.
-from .models import Wheel,Nav,Mustbuy,Foodtypes,Goods,User
+from .models import Wheel,Nav,Mustbuy,Foodtypes,Goods,User,Cart
 
 
 
@@ -112,4 +112,16 @@ class UserAdmin(admin.ModelAdmin):  # 类需要在需要的表里注册一下
     fields = ['userAccount', 'userName', 'userPasswd', 'userPhone','userAddress','userImg','userRank']  # 添加数据显示的顺序
     # fieldsets = []    不能与fields同时使用，二选一，是一个分组,元组
 
+#注册购物车
+@admin.register(Cart)  #注册
+class CartAdmin(admin.ModelAdmin):  # 类需要在需要的表里注册一下
+    # 列表属性
+    list_display = ['pk', 'userAccount', 'productid', 'productnum', 'productprice','isChose','productimg','productname','orderid','isDelete']  # 显示列表的列
+    list_filter = ['userAccount', 'productname']  # 右侧增加过滤条件
+    search_fields = ['userAccount', 'productname']  # 添加搜索框，按sname搜索,多加多条件
+    list_per_page = 5  # 分页5条一分页
+
+    # 添加、修改页属性
+    fields = ['userAccount', 'productid', 'productnum', 'productprice','isChose','productimg','productname','orderid','isDelete']  # 添加数据显示的顺序
+    # fieldsets = []    不能与fields同时使用，二选一，是一个分组,元组
 

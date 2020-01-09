@@ -73,3 +73,19 @@ class User(models.Model):
         u=cls(userAccount=account,userPasswd=passwd,userName=name,userPhone=phone,userAddress=address,userImg=img,userRank=rank,userToken=token)
         return u
 
+class Cart(models.Model):
+    userAccount=models.CharField(max_length=30,verbose_name='账号')
+    productid=models.IntegerField(verbose_name='ID')
+    productnum=models.IntegerField(verbose_name='产品数量')
+    productprice=models.FloatField(max_length=10,verbose_name='产品价格')
+    isChose=models.BooleanField(default=True,verbose_name='是否选中')
+    productimg=models.CharField(max_length=30,verbose_name='产品图片')
+    productname=models.CharField(max_length=30,verbose_name='产品名称')
+    orderid=models.IntegerField(default=0,verbose_name='订单编号')
+    isDelete=models.BooleanField(default=False,verbose_name='是否已删除')
+    class Meta:
+        verbose_name_plural='购物车'
+    @classmethod
+    def createcart(cls,userAccount,productid,productnum,productprice,isChose,productimg,productname,isDelete):
+        c=cls(userAccount=userAccount,productid=productid,productnum=productnum,productprice=productprice,isChose=isChose,productimg=productimg,productname=productname,isDelete=isDelete)
+        return c

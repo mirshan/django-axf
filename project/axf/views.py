@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
-from .models import Wheel, Nav, Mustbuy, Foodtypes, Goods, User
+from .models import Wheel, Nav, Mustbuy, Foodtypes, Goods, User,Cart
 
 # register用的，登录也用，就放到这里了
 import time  # 用于生成token
@@ -50,9 +50,26 @@ def market(request, categoryid, cid, sortid):  # categoryid是产品总分类，
         obj = {'childName': arr2[0], 'childId': arr2[1]}
         childList.append(obj)
 
+    #准备拿token验证是否登录，如果登录，则显示加到购物车里的商品数量
+    token=request.session.get('token')
+    cartList=[]
+    if token:
+        user=User.objects.get('token')
+        cartList=Cart.objects.filter(userAccount=user.userAccount)
+        #取出数据列表，准备修改market.html模板，使其加载时就把数量加载上
+
+
     return render(request, 'axf/market.html',
                   {'title': '超市', 'leftSilder': leftSilder, 'productList': productList, 'childList': childList,
-                   'categoryid': categoryid, 'cid': cid})
+                   'categoryid': categoryid, 'cid': cid,'cartList':cartList})
+
+
+
+
+
+
+
+
 
 
 # 购物车
@@ -70,15 +87,70 @@ def changecart(request, flag):
         return JsonResponse({'data':-1,'status':'error'})   #-1表示未登录
     else:
         productid=request.POST.get('productid')
+        #根据productid去goods表里取出产品价格等信息
+        product=Goods.objects.get(productid=productid)     #如果用filter就不行，只能用get
+        #get（）返回的是一个对象，filter（）返回的是由对象组成的列表，称为查询集
+
         user=User.objects.get(userToken=token)
-        if flag==0:
-            pass
-        elif flag==1:
-            pass
-        elif flag==2:
-            pass
-        elif flag==3:
-            pass
+
+        #0是加号
+        if flag=='0':
+            # 判断库存情况，如果达到库存返回error页面不做反应即可
+            if product.storenums == 0:
+                return JsonResponse({'data': -2, 'status': 'error'})
+
+            carts=Cart.objects.filter(userAccount=user.userAccount)    #返回用户的添加的商品
+            if carts.count()==0:
+
+                #直接增加一个商品
+                c=Cart.createcart(user.userAccount,productid,1,product.price,True,product.productimg,product.productlongname,False)   #新增数量直接写1即可
+                c.save()
+            else:
+                try:
+                    c=carts.get(productid=productid) #如果拿到商品，修改商品价格数量等信息
+                    c.productnum+=1
+                    c.productprice='%.2f' % (product.price * c.productnum)
+                    c.save()
+
+
+                except Cart.DoesNotExist as e:    #如果没拿到则直接增加
+                    # 直接增加一个商品
+                    c = Cart.createcart(user.userAccount, productid, 1, product.price, True, product.productimg,product.productlongname, False)  # 新增数量直接写1即可
+                    c.save()
+            #库存减1
+            product.storenums-=1
+            product.save()
+            return JsonResponse({'data':c.productnum,'status':'success'})
+
+
+        elif flag=='1':
+            carts = Cart.objects.filter(userAccount=user.userAccount)  # 返回用户的添加的商品
+            if carts.count() == 0:
+                return JsonResponse({'data': -2, 'status': 'error'})  #没有此账户点击的商品减无可减
+
+            else:
+                try:
+                    c = carts.get(productid=productid)  # 如果拿到商品，修改商品价格数量等信息
+                    c.productnum -= 1
+                    c.productprice = '%.2f' % (product.price * c.productnum)
+                    if c.productnum==0:
+                        c.delete()
+                    else:
+                        c.save()
+
+
+                except Cart.DoesNotExist as e:  # 如果没拿到则直接增加
+                    #减无可减
+                    return JsonResponse({'data': -2, 'status': 'error'})  # 商品数量变0后无法再减，不走try从这里返回status=error,页面不做响应
+            # 库存减1
+            product.storenums += 1
+            product.save()
+            return JsonResponse({'data': c.productnum, 'status': 'success'})
+        #     pass
+        # elif flag=='2':
+        #     pass
+        # elif flag=='3':
+        #     pass
         return JsonResponse({'data':1,'status':'success'})
 
 
@@ -158,7 +230,7 @@ def register(request):
         userToken = str(token)
 
         f = request.FILES['userImg']  # 拿到文件描述符
-        imgStr = str(int(time.time())) + str(
+        imgStr = str(int(time.time())) + str(       #也可以用'%d'%time.time()来变成字符串
             random.randrange(1000000, 19999999999)) + '.png'  # 网页绝对路径无法显示图片，只能分段生成，这里是图片的名字采用时间戳+随机数的方式生成，保证不会重名
         userImg = os.path.join(settings.MEDIA_ROOT, imgStr)  # 生成图片保存的路径
         imgStrSave = '/static/media/' + imgStr  # 这里是生成图片存储到数据库的名字

@@ -54,14 +54,20 @@ def market(request, categoryid, cid, sortid):  # categoryid是产品总分类，
     token=request.session.get('token')
     cartList=[]
     if token:
-        user=User.objects.get('token')
+        user=User.objects.get(userToken=token)
         cartList=Cart.objects.filter(userAccount=user.userAccount)
         #取出数据列表，准备修改market.html模板，使其加载时就把数量加载上
 
+        #给商品加一个num值，用于加载商品列表数量显示
+        for p in productList:
+            for c in cartList:
+                if c.productid==p.productid:
+                    p.num=c.productnum      #相等有num不相等用模板default:0，给商品新增加的属性
+                    continue
 
     return render(request, 'axf/market.html',
                   {'title': '超市', 'leftSilder': leftSilder, 'productList': productList, 'childList': childList,
-                   'categoryid': categoryid, 'cid': cid,'cartList':cartList})
+                   'categoryid': categoryid, 'cid': cid})
 
 
 
@@ -74,8 +80,13 @@ def market(request, categoryid, cid, sortid):  # categoryid是产品总分类，
 
 # 购物车
 def cart(request):
-    print(request.session.get('token'))
-    return render(request, 'axf/cart.html', {'title': '购物车'})
+    token=request.session.get('token')
+    cartList=[]
+    if token!=None:
+        user=User.objects.get(userToken=token)
+        cartList=Cart.objects.filter(userAccount=user.userAccount)
+
+    return render(request, 'axf/cart.html', {'title': '购物车','cartList':cartList})
 
 
 
@@ -120,7 +131,7 @@ def changecart(request, flag):
             #库存减1
             product.storenums-=1
             product.save()
-            return JsonResponse({'data':c.productnum,'status':'success'})
+            return JsonResponse({'data':c.productnum,'price':c.productprice,'status':'success'})
 
 
         elif flag=='1':
@@ -145,7 +156,7 @@ def changecart(request, flag):
             # 库存减1
             product.storenums += 1
             product.save()
-            return JsonResponse({'data': c.productnum, 'status': 'success'})
+            return JsonResponse({'data': c.productnum, 'price':c.productprice,'status': 'success'})
         #     pass
         # elif flag=='2':
         #     pass

@@ -55,12 +55,12 @@
     </div>
         <ul>
             {%for item in productList%}
-            <li id="prostyle"  >
-                <a href="">
-                    <img src="{{item.productimg}}" style="width: 1rem;height: 1rem; left:3rem;"/>
-                    <article class="shoppingInfo">
-                        <h6>{{item.productlongname}}</h6>
-                        <p class="detailTag">
+            <li id="prostyle" style="margin-bottom: 0.2rem"  >
+                <a href=""  style="display: inline-block">
+                    <img src="{{item.productimg}}" style="width: 1.5rem;height: 1.5rem; "/>
+                    <article class="shoppingInfo"  style="display: inline-block">
+                        <h6  style="display: inline-block">{{item.productlongname}}</h6>
+                        <p class="detailTag"  style="display: inline-block">
                             <span>精选</span>
                             <span>{{item.pmdesc}}</span>
                         </p>
@@ -69,17 +69,18 @@
                     </article>
                 </a>
 
-                <section>
+
+
+                <section  style="display: inline-block" >
                     <button ga="{{item.productid}}" class="subShopping">-</button>
-                    {%for c in cartList%}
-                        {%if c.productid==item.productid%}
-                            <span id="{{item.productid}}">{{c.productnum}}</span>
-                        {%endif%}}
-                    {%endfor%}
+
+                            <span id="{{item.productid}}">{{item.num|default:0}}</span>
+
                     <button ga="{{item.productid}}" class="addShopping">+</button>  <!--自定义ga为了获取id使用，不同产品相同操作-->
                 </section>
             </li>
             {%endfor%}
+
         </ul>
 
 

@@ -1,8 +1,9 @@
 {%extends 'axf/base.html' %}
-{% load static from staticfiles %}
+{% load staticfiles %}
+
+
+
 {%block cart%}
-<link rel="stylesheet" type="text/css" href="{%static 'axf/cart/css/cart.css'%}"/>
-<script type="text/javascript" charset="utf-8" src="{% static 'axf/cart/js/cart.js' %}"/>
 {%endblock cart%}
 
 
@@ -39,33 +40,34 @@
 
             <menu>
                 <ul>
-                    {%for item in cartslist%}
-                    <li class="menuList">
-                        <div class="confirm">
+                    {%for item in cartList%}
+                    <li id="{{item.productid}}lis" class="menuList" style="margin-bottom: 0.2rem;">
+                        <div class="confirm" style="display: inline-block; margin-right: 0.1rem">
                         <span class="ischose" goodsid="{{item.productid}}">
-                            <span id="{{item.productid}}">
+                            <span id="{{item.productid}}a">
                                 {%ifequal True item.isChose%}
-                                ~
+                                √
                                 {%endifequal%}
                             </span>
                         </span>
                         </div>
-                        <a href="">
-                            <img src="{{item.productimg}}"/>
-                            <p>{{item.productname}}</p>
-                            <span class="{{productprice}}"></span>
+                        <a href=""  style="display: inline-block">
+                            <img src="{{item.productimg}}" width="60rem" height="60rem"/>
+                            <p  style="display: inline-block">{{item.productname}}</p>
+
+                            <span class="{{productprice}}" id="{{item.productid}}price">{{item.productprice}}</span>
                         </a>
-                        <section>
-                            <button class="subShopping" ga="{{item.productid}}">-</button>
+                        <section style="display:inline-flex">
+                            <button class="subShopping1" ga1="{{item.productid}}">-</button>
                             <span id="{{item.productid}}">{{item.productnum}}</span>
-                            <button class="addShopping" ga="{{item.productid}}">+</button>
+                            <button class="addShopping1" ga1="{{item.productid}}">+</button>
                         </section>
                     </li>
                     {%endfor%}
                     <li class="payTheBill">
                         <div class="confirm"><span><span>
                         {%if trueFlag%}
-                        ~
+                        √
                         {%endif%}
                     </span></span></div>
                         <p><span>全选</span><span>共计：</span><span>总价：</span></p>

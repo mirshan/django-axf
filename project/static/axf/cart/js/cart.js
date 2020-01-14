@@ -42,4 +42,35 @@ $(document).ready(function () {
 
         },false)
     }
+
+
+    //点击对勾取消产品
+    var ischoses=document.getElementsByClassName('ischose')
+    for(var j=0;j<ischoses.length;j++){
+        ischose=ischoses[j]
+        ischose.addEventListener('click',function () {
+            pid=this.getAttribute('goodsid')
+            //发起AJAX请求
+            $.post('/changecart/2/',{'productid':pid},function(data){
+                if (data.status=='success'){
+                    //修改值
+                    // window.location.href="/cart/"   //这个通过刷新效果实现，但页面会闪一下
+                    var s=document.getElementById(pid+'a')
+                    s.innerHTML=data.data  //需要在返回的json增加data返回值
+
+                }
+            })
+
+        },false)
+
+    }
+
+
+
+
+
+
+
+
+
 })

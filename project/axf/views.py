@@ -157,9 +157,21 @@ def changecart(request, flag):
             product.storenums += 1
             product.save()
             return JsonResponse({'data': c.productnum, 'price':c.productprice,'status': 'success'})
-        #     pass
-        # elif flag=='2':
-        #     pass
+
+        #2表示点击对勾时产生的效果，从购物车里清除商品
+        elif flag=='2':
+            carts=Cart.objects.filter(userAccount=user.userAccount)
+            c=carts.get(productid=productid)
+            c.isChose=not c.isChose
+            c.save()
+            str='O'
+            if c.isChose==1:
+                str='√'
+            return JsonResponse({'data':str,'status':'success'})
+
+
+
+
         # elif flag=='3':
         #     pass
         return JsonResponse({'data':1,'status':'success'})

@@ -73,6 +73,15 @@ class User(models.Model):
         u=cls(userAccount=account,userPasswd=passwd,userName=name,userPhone=phone,userAddress=address,userImg=img,userRank=rank,userToken=token)
         return u
 
+
+
+
+class CartManager1(models.Manager):   #只查询没有生成订单的购物车列表，所以生成一个模型管理器
+    def get_queryset(self):
+        return super(CartManager1,self).get_queryset().filter(isDelete=False)
+class CartManager2(models.Manager):   #查询生成订单的购物车列表，所以生成一个模型管理器
+    def get_queryset(self):
+        return super(CartManager2,self).get_queryset().filter(isDelete=True)
 class Cart(models.Model):
     userAccount=models.CharField(max_length=30,verbose_name='账号')
     productid=models.IntegerField(verbose_name='ID')
@@ -83,9 +92,22 @@ class Cart(models.Model):
     productname=models.CharField(max_length=30,verbose_name='产品名称')
     orderid=models.IntegerField(default=0,verbose_name='订单编号')
     isDelete=models.BooleanField(default=False,verbose_name='是否已删除')
+    objects=CartManager1()    #正常查询，过滤掉已从购物车里删除的商品
+    obj2=CartManager2()       #为了拿订单及商品，取删除掉的商品
     class Meta:
         verbose_name_plural='购物车'
     @classmethod
     def createcart(cls,userAccount,productid,productnum,productprice,isChose,productimg,productname,isDelete):
         c=cls(userAccount=userAccount,productid=productid,productnum=productnum,productprice=productprice,isChose=isChose,productimg=productimg,productname=productname,isDelete=isDelete)
         return c
+
+
+#订单表
+class Order(models.Model):
+    orderid=models.IntegerField(verbose_name='订单ID')
+    userid=models.CharField(max_length=30,verbose_name='用户ID')
+    progress=models.CharField(max_length=100,verbose_name='订单进度')
+    @classmethod
+    def createorder(cls,orderid,userid,progress):
+        o=cls(orderid=orderid,userid=userid,progress=progress)
+        return o

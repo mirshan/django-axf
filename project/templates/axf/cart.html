@@ -46,7 +46,10 @@
                         <span class="ischose" goodsid="{{item.productid}}">
                             <span id="{{item.productid}}a">
                                 {%ifequal True item.isChose%}
-                                √
+                                <span style="color: red;">√</span>
+                                {%endifequal%}
+                                {%ifequal False item.isChose%}
+                                O
                                 {%endifequal%}
                             </span>
                         </span>
@@ -71,7 +74,7 @@
                         {%endif%}
                     </span></span></div>
                         <p style="display: inline-block"><span>O 全选</span><span>共计：</span><span>总价：</span></p>
-                        <a style="display: inline-block">选好了</a>
+                        <a style="display: inline-block" id="ok">选好了</a>
                     </li>
                 </ul>
             </menu>

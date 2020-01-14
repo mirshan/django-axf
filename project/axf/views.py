@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
-from .models import Wheel, Nav, Mustbuy, Foodtypes, Goods, User,Cart
+from .models import Wheel, Nav, Mustbuy, Foodtypes, Goods, User,Cart,Order
 
 # register用的，登录也用，就放到这里了
 import time  # 用于生成token
@@ -166,7 +166,7 @@ def changecart(request, flag):
             c.save()
             str='O'
             if c.isChose==1:
-                str='√'
+                str='<span style="color: red;">√</span>'
             return JsonResponse({'data':str,'status':'success'})
 
 
@@ -175,6 +175,36 @@ def changecart(request, flag):
         # elif flag=='3':
         #     pass
         return JsonResponse({'data':1,'status':'success'})
+
+
+
+#订单
+def saveorder(request):
+    # 判断是否登录
+    token = request.session.get('token')
+    if token == None:
+        # 没登录
+        return JsonResponse({'data': -1, 'status': 'error'})  # -1表示未登录
+    user=User.objects.get(userToken=token)
+    carts=Cart.objects.filter(isChose=True)     #选择被选中的
+    if carts.count()==0:
+        return JsonResponse({'data': -1, 'status': 'error'})
+
+    #生成订单
+    oid=time.time()+random.randrange(1,100000)
+    oid='%d '% oid
+    o=Order.createorder(oid,user.userAccount,0)
+    o.save()
+
+    for item in carts:
+        item.isDelete=True
+        item.orderid=oid
+        item.save()
+    return JsonResponse({'status':'success'})
+
+
+
+
 
 
 

@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^checkuserid/$',views.checkuserid,name='checkuserid'),
     url(r'^quit/$',views.quit,name='quit'),
     url(r'^changecart/(\d+)/$',views.changecart,name='changecart'),
+    url(r'^saveorder/$',views.saveorder,name='saveorder'),  #下订单
 
 
 

@@ -66,6 +66,21 @@ $(document).ready(function () {
     }
 
 
+    //提交订单
+    var ok=document.getElementById('ok')
+    ok.addEventListener('click',function (data) {
+        var f=confirm('是否确认下单？')
+        if (f){
+            $.post('/saveorder/',function (data) {
+                if (data.status='success'){
+                    window.location.href='/cart/'
+
+                }
+
+
+            },false)
+        }
+    },false)
 
 
 

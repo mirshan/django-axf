@@ -204,6 +204,17 @@ def saveorder(request):
 
 
 
+def order(request):
+    # 判断是否登录
+    token = request.session.get('token')
+    if token == None:
+        # 没登录
+        return JsonResponse({'data': -1, 'status': 'error'})  # -1表示未登录
+    user=User.objects.get(userToken=token)
+    carts = Cart.obj2.filter(userAccount=user.userAccount).order_by('-orderid')  # 选择被选中的
+    return render(request,'axf/order.html',{'productList':carts})
+
+
 
 
 
@@ -327,3 +338,7 @@ from django.contrib.auth import logout
 def quit(request):
     logout(request)  # 清除了所有的session和cookies
     return redirect('/mime/')
+
+
+def test(request):
+    return render(request,'axf/test.html')
